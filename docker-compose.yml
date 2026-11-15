@@ -1,0 +1,17 @@
+# Arranque: docker compose up -d --build
+services:
+  app:
+    build: .
+    image: studies4kids
+    container_name: studies4kids
+    restart: unless-stopped
+    ports:
+      # Puerto en el que se abre la app en la red de casa. Para usar otro, cambia solo el primero (p. ej. "8080:3000").
+      - "3000:3000"
+    environment:
+      # La racha y "las tarjetas de hoy" cambian a medianoche de esta zona. En Canarias: Atlantic/Canary.
+      TZ: Europe/Madrid
+    volumes:
+      # Todo lo que hay que conservar vive aquí: la base de datos y los archivos subidos (data/app)
+      # y la sesión de ChatGPT de Codex (data/codex). Copiar esta carpeta es la copia de seguridad.
+      - ./data:/data
