@@ -20,7 +20,7 @@ Funciona con **tu propia cuenta de ChatGPT**, a través de Codex, la herramienta
 
 ## Qué necesitas
 
-- Un PC con **Windows 10 u 11** que pueda quedarse encendido (un mini PC es ideal).
+- Un PC con **Windows 10 u 11** que pueda quedarse encendido (un mini PC es ideal). En **macOS** hay un instalador sin probar.
 - Una cuenta de administrador en ese PC e internet.
 - Una **cuenta de ChatGPT** cuyo plan incluya Codex.
 
@@ -34,6 +34,12 @@ Funciona con **tu propia cuenta de ChatGPT**, a través de Codex, la herramienta
 El instalador pone Node.js y Codex si faltan, compila la app, abre el puerto solo en redes privadas y deja la app arrancando sola al encender el equipo.
 
 La guía completa, con copias de seguridad, actualización y solución de problemas, está en **[INSTALAR.md](INSTALAR.md)**.
+
+### macOS (sin probar)
+
+Hay un instalador para Mac, `instalar.command`, que **todavía no se ha ejecutado en ningún Mac**. Si quieres probarlo: mueve la carpeta a `~/Studies4Kids`, abre Terminal, escribe `bash `, arrastra `instalar.command` a la ventana y pulsa Intro. Los detalles están en el apartado "Instalación en macOS" de [INSTALAR.md](INSTALAR.md). Se agradece que cuentes el resultado en una incidencia.
+
+### Linux o NAS
 
 Hay también un `Dockerfile` y un `docker-compose.yml` para Linux o un NAS, pero esa vía **no está probada**.
 

@@ -6,6 +6,7 @@ La instalación la hace un script. Tú solo tienes que copiar la carpeta, hacer 
 
 > **Estado de las pruebas:** la instalación completa se ha hecho con éxito en un mini PC con Windows 11 Pro.
 > No se ha probado en Windows 10 ni en otras ediciones. Si algo falla, mira "Si algo va mal".
+> Para **macOS** hay un instalador aparte, todavía sin probar: mira "Instalación en macOS" al final.
 
 ## Qué necesitas
 
@@ -150,6 +151,40 @@ Remove-NetFirewallRule -DisplayName Studies4Kids
 ```
 
 Después borra la carpeta. Guarda antes `data` si quieres conservar lo estudiado.
+
+## Instalación en macOS (sin probar)
+
+> **Aviso:** el instalador de macOS está escrito y revisado, pero **todavía no se ha ejecutado en ningún Mac**.
+> Si lo pruebas, cuenta cómo te ha ido abriendo una incidencia en el repositorio de GitHub.
+
+Lo que cambia respecto a Windows:
+
+1. **Carpeta:** extrae el zip y mueve la carpeta a tu carpeta de usuario, por ejemplo `~/Studies4Kids`. **No la dejes en Escritorio, Documentos, Descargas ni iCloud**: macOS impide que un servicio en segundo plano lea esas carpetas, y el instalador se negará a continuar.
+2. **Node.js:** si no lo tienes, instala la versión LTS desde https://nodejs.org. Si usas Homebrew, el instalador lo pone por ti.
+3. **Instalar:** abre **Terminal**, escribe `bash ` (con el espacio final), arrastra el archivo `instalar.command` a la ventana y pulsa Intro. Así se evita el bloqueo de macOS a los archivos descargados. No uses `sudo`.
+4. **Preguntas:** el instalador pregunta si evita que el Mac se suspenda solo, y abre el navegador para iniciar sesión en ChatGPT.
+5. **Cortafuegos:** si macOS pregunta si "node" puede aceptar conexiones entrantes, pulsa **Permitir**.
+6. **Primera configuración:** igual que en Windows (apartado 4).
+
+Diferencias de funcionamiento:
+
+- La app arranca **al iniciar sesión** en el Mac, no al encenderlo. Para que funcione sola tras un apagón, activa el inicio de sesión automático en *Ajustes del Sistema → Usuarios y grupos*.
+- Un portátil con la tapa cerrada se suspende igualmente.
+- Codex se instala en `~/.studies4kids`, sin contraseña de administrador.
+
+Órdenes útiles en Terminal:
+
+```bash
+launchctl bootout gui/$(id -u)/com.studies4kids.app
+```
+
+```bash
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.studies4kids.app.plist
+```
+
+La primera para la app y la segunda la arranca. El registro está en `data/logs/app.log`. Para actualizar, copia los archivos nuevos sin tocar `data` y repite el paso 3. Para otro puerto, añade `--puerto 8080` al final de la orden del paso 3.
+
+Para quitarla: para la app con la primera orden, borra `~/Library/LaunchAgents/com.studies4kids.app.plist`, la carpeta `~/.studies4kids` y la carpeta de la app.
 
 ## Alternativa con Docker (Linux o NAS)
 
