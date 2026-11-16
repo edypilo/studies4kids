@@ -3,6 +3,12 @@ import Link from 'next/link';
 import { getCurrentProfile } from '@/lib/auth';
 import { logoutAction } from '@/lib/actions';
 import { LogoMark } from '@/components/Logo';
+import { SideNav } from '@/components/SideNav';
+import { dueCount } from '@/lib/topics';
+// Tipografía de títulos, servida desde la propia app (sin peticiones a internet).
+import '@fontsource/poppins/600.css';
+import '@fontsource/poppins/700.css';
+import '@fontsource/poppins/800.css';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -14,6 +20,7 @@ export const viewport: Viewport = { width: 'device-width', initialScale: 1, them
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const profile = await getCurrentProfile();
+  const student = profile?.role === 'student';
   return (
     <html lang="es">
       <body>
@@ -34,7 +41,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </form>
           )}
         </header>
-        <main className="page">{children}</main>
+        {student ? (
+          <div className="shell">
+            <SideNav due={dueCount(profile.id)} />
+            <main className="page">{children}</main>
+          </div>
+        ) : (
+          <main className="page">{children}</main>
+        )}
       </body>
     </html>
   );

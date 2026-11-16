@@ -1,141 +1,168 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { Icon } from '@/components/Icons';
 import { NewCourseForm } from '@/components/NewCourseForm';
-import { addSubject } from '@/lib/actions';
 import { requireStudent } from '@/lib/auth';
-import { ExamList } from '@/components/ExamList';
-import { ProgressSummary } from '@/components/Progress';
-import { listExams } from '@/lib/exams';
+import { countdown, listExams, longDate } from '@/lib/exams';
+import { activeCourse, courseTopics, mastery } from '@/lib/overview';
 import { getStats } from '@/lib/progress';
 import { dueCount } from '@/lib/topics';
-import { SUGGESTED_SUBJECTS, getDb, type Course } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-type SubjectRow = { id: number; name: string; color: string; topics: number };
+const RING = 2 * Math.PI * 42;
 
+/** Inicio del alumno: saludo y racha, accesos a lo que toca hoy, avance del curso y próximo examen. */
 export default async function Home({ searchParams }: { searchParams: Promise<{ curso?: string }> }) {
   const me = await requireStudent();
+  // Los cursos anteriores se consultan ahora desde "Mis temas"; se conservan los enlaces antiguos.
   const { curso } = await searchParams;
-  const db = getDb();
+  if (curso) redirect(`/temas?curso=${encodeURIComponent(curso)}`);
 
-  const courses = db
-    .prepare('SELECT * FROM courses WHERE profile_id = ? ORDER BY active DESC, id DESC')
-    .all(me.id) as Course[];
-  const active = courses.find((c) => c.active) ?? null;
-  const course = courses.find((c) => c.id === Number(curso)) ?? active;
-
+  const course = activeCourse(me.id);
   if (!course) {
     return (
       <>
-        <h1>Hola, {me.name}</h1>
+        <h1>¡Hola, {me.name}!</h1>
         <p className="muted">Todavía no tienes ningún curso. Crea el primero:</p>
         <NewCourseForm profileId={me.id} current={null} />
       </>
     );
   }
 
-  const subjects = db
-    .prepare(
-      `SELECT s.id, s.name, s.color, (SELECT COUNT(*) FROM topics t WHERE t.subject_id = s.id) AS topics
-         FROM subjects s WHERE s.course_id = ? ORDER BY s.name`,
-    )
-    .all(course.id) as SubjectRow[];
-  const taken = new Set(subjects.map((s) => s.name.toLowerCase()));
-  const suggestions = SUGGESTED_SUBJECTS[course.stage].filter((n) => !taken.has(n.toLowerCase()));
-  const archived = courses.filter((c) => c.id !== course.id);
-  const due = course.active ? dueCount(me.id) : 0;
-  const exams = course.active ? listExams({ profileId: me.id }) : [];
+  const stats = getStats(me.id);
+  const topics = courseTopics(course.id);
+  const m = mastery(topics);
+  const subjects = new Set(topics.map((t) => t.subject)).size;
+  const due = dueCount(me.id);
+  const exams = listExams({ profileId: me.id });
+  const next = exams[0];
+  const tested = topics.filter((t) => t.quiz !== null || t.exam !== null).length;
+
+  const lead = next
+    ? 'Sigue con tu plan y llega al examen con todo preparado.'
+    : due > 0
+      ? 'Un rato de repaso hoy y mañana lo recordarás mejor.'
+      : 'Sube el temario de lo que estés dando y empieza a estudiarlo.';
 
   return (
-    <div className={`stage-${course.stage}`}>
-      <h1>Hola, {me.name}</h1>
-      <p className="muted">
-        {course.name} · {course.school_year}{' '}
-        {course.active ? <span className="badge">Curso actual</span> : <span className="badge off">Archivado</span>}
-      </p>
-
-      {!course.active && (
-        <div className="banner">
-          Estás viendo un curso anterior. <Link href="/inicio">Volver al curso actual →</Link>
+    <div className={`home stage-${course.stage}`}>
+      <header className="home-head">
+        <div>
+          <h1>¡Hola, {me.name}!</h1>
+          <p className="muted">{lead}</p>
         </div>
-      )}
-
-      {course.active ? <ProgressSummary stats={getStats(me.id)} /> : null}
-
-      {due > 0 && (
-        <Link href="/repasar" className="card review-card">
-          <strong>{due === 1 ? 'Tienes 1 tarjeta para repasar hoy' : `Tienes ${due} tarjetas para repasar hoy`}</strong>
-          <span>Empezar el repaso →</span>
+        <Link href="/progreso" className={`streak${stats.streak > 0 ? ' on' : ''}`}>
+          <Icon name="flame" size={20} />
+          <span>
+            Racha: <strong>{stats.streak === 1 ? '1 día' : `${stats.streak} días`}</strong>
+          </span>
         </Link>
-      )}
+      </header>
 
-      {exams.length > 0 && (
-        <>
-          <h2>Próximos exámenes</h2>
-          <ExamList exams={exams} showSubject />
-        </>
-      )}
+      <nav className="quick" aria-label="Accesos rápidos">
+        <Link href="/temas" className="quick-card blue">
+          <Icon name="layers" size={36} />
+          <strong>Mis temas</strong>
+          <span>
+            {topics.length === 0
+              ? 'Crea tu primera asignatura.'
+              : `${subjects} ${subjects === 1 ? 'asignatura' : 'asignaturas'}, ${topics.length} ${topics.length === 1 ? 'tema' : 'temas'}.`}
+          </span>
+          <Icon name="arrow" size={18} />
+        </Link>
+        <Link href="/repasar" className="quick-card mint">
+          <Icon name="cards" size={36} />
+          <strong>Repasar</strong>
+          <span>
+            {due === 0 ? 'Hoy estás al día.' : due === 1 ? '1 tarjeta para hoy.' : `${due} tarjetas para hoy.`}
+          </span>
+          <Icon name="arrow" size={18} />
+        </Link>
+        <Link href="/tests" className="quick-card yellow">
+          <Icon name="check" size={36} />
+          <strong>Tests</strong>
+          <span>
+            {topics.length === 0
+              ? 'Pon a prueba lo que sabes.'
+              : tested === 0
+                ? 'Aún no has hecho ninguno.'
+                : `Hechos en ${tested} de ${topics.length} temas.`}
+          </span>
+          <Icon name="arrow" size={18} />
+        </Link>
+      </nav>
 
-      <h2>Mis asignaturas</h2>
-      {subjects.length === 0 ? (
-        <div className="empty">Aún no hay asignaturas. Añade la primera aquí abajo.</div>
-      ) : (
-        <div className="grid">
-          {subjects.map((s) => (
-            <Link
-              key={s.id}
-              href={`/asignatura/${s.id}`}
-              className="card subject-card"
-              style={{ '--c': s.color } as React.CSSProperties}
-            >
-              <strong>{s.name}</strong>
-              <span className="muted">{s.topics === 1 ? '1 tema' : `${s.topics} temas`}</span>
-            </Link>
-          ))}
-        </div>
-      )}
-
-      <h2>Añadir asignatura</h2>
-      <form action={addSubject} className="row">
-        <input type="hidden" name="courseId" value={course.id} />
-        <input name="name" className="grow" placeholder="Nombre de la asignatura" aria-label="Nombre de la asignatura" maxLength={80} required />
-        <button className="btn">Añadir</button>
-      </form>
-      {suggestions.length > 0 && (
-        <div className="row" style={{ marginTop: 12 }}>
-          <span className="muted">Rápido:</span>
-          {suggestions.map((name) => (
-            <form key={name} action={addSubject}>
-              <input type="hidden" name="courseId" value={course.id} />
-              <input type="hidden" name="name" value={name} />
-              <button className="btn chip">+ {name}</button>
-            </form>
-          ))}
-        </div>
-      )}
-
-      <h2>Cursos</h2>
-      {archived.length > 0 && (
-        <div className="list" style={{ marginBottom: 12 }}>
-          {archived.map((c) => (
-            <div key={c.id} className="list-item">
-              <Link className="title" href={c.active ? '/inicio' : `/inicio?curso=${c.id}`}>
-                {c.name} · {c.school_year}
-              </Link>
-              <span className={c.active ? 'badge' : 'badge off'}>{c.active ? 'Curso actual' : 'Archivado'}</span>
+      <div className="home-row">
+        <section className="card panel" aria-labelledby="h-progreso">
+          <h2 id="h-progreso">
+            <Icon name="chart" size={20} /> Mi progreso
+          </h2>
+          {m.total === 0 ? (
+            <p className="muted">Cuando tengas temas, aquí verás cuánto llevas de cada uno.</p>
+          ) : (
+            <div className="mastery">
+              <svg className="ring" viewBox="0 0 100 100" role="img" aria-label={`${m.percent}% de la ruta de estudio completada`}>
+                <circle cx="50" cy="50" r="42" className="ring-track" />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="42"
+                  className="ring-value"
+                  strokeDasharray={`${(m.percent / 100) * RING} ${RING}`}
+                  transform="rotate(-90 50 50)"
+                />
+                <text x="50" y="50" textAnchor="middle" dominantBaseline="central">
+                  {m.percent} %
+                </text>
+              </svg>
+              <ul className="mastery-list">
+                <li className="done">
+                  Temas dominados: <strong>{m.mastered}</strong>
+                </li>
+                <li className="ongoing">
+                  En marcha: <strong>{m.ongoing}</strong>
+                </li>
+                <li className="untouched">
+                  Sin empezar: <strong>{m.untouched}</strong>
+                </li>
+              </ul>
             </div>
-          ))}
-        </div>
-      )}
-      {course.active ? (
-        <details className="card">
-          <summary>Pasar de curso</summary>
-          <p className="muted" style={{ marginTop: 0 }}>
-            Se crea el curso nuevo y {course.name} queda archivado: podrás seguir consultándolo.
-          </p>
-          <NewCourseForm profileId={me.id} current={course} />
-        </details>
-      ) : null}
+          )}
+          <Link href="/progreso" className="panel-link">
+            Ver todo el progreso <Icon name="arrow" size={16} />
+          </Link>
+        </section>
+
+        <section className="card panel" aria-labelledby="h-examen">
+          <h2 id="h-examen">
+            <Icon name="calendar" size={20} /> Próximo examen
+          </h2>
+          {next ? (
+            <>
+              <Link href={`/examen/${next.id}`} className="next-exam">
+                <span className="next-exam-text">
+                  <strong>{next.title}</strong>
+                  <span className="muted">
+                    {next.subject} · {longDate(next.date)}
+                  </span>
+                </span>
+                <span className={`next-exam-when${next.days <= 3 ? ' soon' : ''}`}>{countdown(next.days)}</span>
+              </Link>
+              <div className="progress" role="img" aria-label={`Preparado al ${next.percent}%`}>
+                <div style={{ width: `${next.percent}%` }} />
+              </div>
+              <p className="muted next-exam-note">Preparado al {next.percent}%</p>
+            </>
+          ) : (
+            <p className="muted">No tienes exámenes apuntados. Apunta el siguiente y tendrás su ruta de estudio.</p>
+          )}
+          <Link href="/examenes" className="panel-link">
+            {exams.length > 1 ? `Ver los ${exams.length} exámenes` : next ? 'Ver los exámenes' : 'Apuntar un examen'}{' '}
+            <Icon name="arrow" size={16} />
+          </Link>
+        </section>
+      </div>
     </div>
   );
 }
