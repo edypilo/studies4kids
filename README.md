@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-oscuro.svg">
+    <img src="docs/logo.svg" alt="Studies4Kids. Aprender hoy. Recordar mañana." width="520">
+  </picture>
+</p>
+
 # Studies4Kids
 
 App web de estudio para los hijos, que se instala en un PC de casa y se usa desde cualquier dispositivo de la misma red. A partir del temario que sube cada alumno (PDF, fotos de los apuntes o texto), la IA prepara resúmenes, tarjetas, tests y simulacros de examen, y un tutor que responde dudas.

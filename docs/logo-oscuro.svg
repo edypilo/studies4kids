@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 170" width="640" height="170" role="img" aria-label="Studies4Kids. Aprender hoy. Recordar mañana.">
+  <g transform="translate(6 14) scale(1.2)">
+    <g fill="none" stroke="#ffc857" stroke-width="7" stroke-linecap="round">
+      <path d="M60 8v13M38 13l7 11M82 13l-7 11"/>
+    </g>
+    <g stroke-width="5" stroke-linejoin="round">
+      <path d="M57 46C45 36 29 32 14 34v54c15-2 31 2 43 14z" fill="#4f6df5" stroke="#4f6df5"/>
+      <path d="M63 46c12-10 28-14 43-12v54c-15-2-31 2-43 14z" fill="#27bfa5" stroke="#27bfa5"/>
+    </g>
+    <path d="M68 90V52L45 79h33" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g font-family="Poppins, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif">
+    <text x="166" y="98" font-size="70" font-weight="800" letter-spacing="-2" fill="#ffffff">Studies<tspan fill="#4f6df5">4</tspan>Kids</text>
+    <text x="170" y="138" font-size="25" font-style="italic" font-weight="500" fill="#c5cae0">Aprender hoy. Recordar mañana.</text>
+  </g>
+  <path d="M172 153q150 -10 300 -2" fill="none" stroke="#27bfa5" stroke-width="5" stroke-linecap="round"/>
+</svg>

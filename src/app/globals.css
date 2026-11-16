@@ -8,6 +8,9 @@
   --accent-text: #ffffff;
   --danger: #d6336c;
   --radius: 14px;
+  /* Identidad visual: azul (acento), azul noche (texto), menta y amarillo como apoyo, fondo hielo. */
+  --mint: #27bfa5;
+  --yellow: #ffc857;
 }
 
 * {
@@ -30,6 +33,8 @@ a {
 
 h1 {
   font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   margin: 0 0 4px;
 }
 
@@ -53,13 +58,51 @@ h2 {
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 800;
-  font-size: 1.2rem;
-  letter-spacing: -0.02em;
+  font-size: 1.3rem;
+  letter-spacing: -0.03em;
 }
 
-.brand span {
+.brand svg {
+  flex: none;
+}
+
+.brand-name span {
   color: var(--accent);
+}
+
+/* Portada: símbolo, nombre y lema. */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  margin: 8px 0 28px;
+}
+
+.hero-name {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.hero-name span {
+  color: var(--accent);
+}
+
+.tagline {
+  margin: 0;
+  padding-bottom: 6px;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 1.05rem;
+  border-bottom: 4px solid var(--mint);
+  border-radius: 2px;
 }
 
 .who {
@@ -129,7 +172,7 @@ a.card:hover {
   box-shadow: 0 6px 18px rgba(30, 40, 90, 0.1);
 }
 
-.profile-card {
+.card.profile-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -167,8 +210,8 @@ a.card:hover {
 }
 
 .banner {
-  background: #fff4d6;
-  border: 1px solid #f1d98a;
+  background: color-mix(in srgb, var(--yellow) 22%, #fff);
+  border: 1px solid color-mix(in srgb, var(--yellow) 70%, #fff);
   border-radius: var(--radius);
   padding: 10px 14px;
   margin: 14px 0;
@@ -738,8 +781,8 @@ a.material-name:hover {
 }
 
 .option.right {
-  border-color: #2f9e44;
-  background: #ebfbee;
+  border-color: var(--mint);
+  background: color-mix(in srgb, var(--mint) 12%, #fff);
 }
 
 .option.wrong {
@@ -758,7 +801,7 @@ a.material-name:hover {
 .hint {
   margin: 0;
   padding: 10px 14px;
-  background: #fff4d6;
+  background: color-mix(in srgb, var(--yellow) 22%, #fff);
   border-radius: 10px;
 }
 
@@ -769,7 +812,7 @@ a.material-name:hover {
 }
 
 .verdict.right {
-  background: #ebfbee;
+  background: color-mix(in srgb, var(--mint) 12%, #fff);
 }
 
 .verdict.wrong {
@@ -867,7 +910,7 @@ a.material-name:hover {
 }
 
 .review.right {
-  border-left-color: #2f9e44;
+  border-left-color: var(--mint);
 }
 
 .review.partial {
@@ -1054,8 +1097,8 @@ a.exam-card {
 }
 
 .route li.done .route-mark {
-  background: #2f9e44;
-  border-color: #2f9e44;
+  background: var(--mint);
+  border-color: var(--mint);
 }
 
 .route li.done .route-label {
@@ -1108,7 +1151,7 @@ a.exam-card {
 }
 
 .feedback.good {
-  border-left-color: #2f9e44;
+  border-left-color: var(--mint);
 }
 
 .feedback.gap {

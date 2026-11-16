@@ -2,14 +2,15 @@ import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import { getCurrentProfile } from '@/lib/auth';
 import { logoutAction } from '@/lib/actions';
+import { LogoMark } from '@/components/Logo';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Studies4Kids',
-  description: 'App de estudio de la familia',
+  description: 'Aprender hoy. Recordar mañana. La app de estudio de la familia.',
 };
 
-export const viewport: Viewport = { width: 'device-width', initialScale: 1 };
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#4f6df5' };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const profile = await getCurrentProfile();
@@ -18,7 +19,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <header className="topbar">
           <Link href={profile ? (profile.role === 'parent' ? '/padres' : '/inicio') : '/'} className="brand">
-            Studies<span>4</span>Kids
+            <LogoMark size={34} />
+            <span className="brand-name">
+              Studies<span>4</span>Kids
+            </span>
           </Link>
           {profile && (
             <form action={logoutAction} className="who">
